@@ -1,0 +1,13 @@
+# Binaries
+community-guardian
+
+# Environment variables
+.env
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# IDE files (GoLand/IntelliJ)
+.idea/
