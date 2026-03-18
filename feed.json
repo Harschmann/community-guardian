@@ -16,5 +16,47 @@
     "timestamp": "2026-03-19T09:30:00Z",
     "source": "Nextdoor App",
     "raw_text": "Alert: Excitel broadband just sent out a notice that their local database was breached. Change your WiFi router passwords if you use them!"
+  },
+  {
+    "id": "4",
+    "timestamp": "2026-03-19T10:05:00Z",
+    "source": "Neighborhood Watch Group",
+    "raw_text": "Has anyone seen a golden retriever near the park? He slipped out of his collar this morning."
+  },
+  {
+    "id": "5",
+    "timestamp": "2026-03-19T11:20:00Z",
+    "source": "Community Forum",
+    "raw_text": "Hey neighbors, there are two guys walking around claiming to be from the city water department asking to come inside and test the sinks. The police just confirmed they are scammers trying to case houses."
+  },
+  {
+    "id": "6",
+    "timestamp": "2026-03-19T12:45:00Z",
+    "source": "Local Facebook Group",
+    "raw_text": "Got a text from FedEx saying my package is delayed and I need to pay a $2 fee via the link attached. I'm not expecting any packages right now."
+  },
+  {
+    "id": "7",
+    "timestamp": "2026-03-19T13:10:00Z",
+    "source": "Nextdoor App",
+    "raw_text": "The pothole on Elm street is getting ridiculous. I almost popped a tire today. Who do we call to get this fixed?"
+  },
+  {
+    "id": "8",
+    "timestamp": "2026-03-19T14:30:00Z",
+    "source": "Neighborhood Watch Group",
+    "raw_text": "Just a heads up, three cars were broken into on 3rd Avenue last night. Make sure you aren't leaving any bags or laptops visible on your seats!"
+  },
+  {
+    "id": "9",
+    "timestamp": "2026-03-19T15:55:00Z",
+    "source": "Community Forum",
+    "raw_text": "I just received a very aggressive voicemail claiming to be from the IRS saying there's a warrant out for my arrest if I don't call back and provide my SSN immediately. Total scam."
+  },
+  {
+    "id": "10",
+    "timestamp": "2026-03-19T16:20:00Z",
+    "source": "Local Facebook Group",
+    "raw_text": "Does anyone have a recommendation for a good plumber? The pipe under my kitchen sink is leaking everywhere."
   }
 ]
