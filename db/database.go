@@ -3,16 +3,18 @@ package db
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"log"
 
 	"github.com/Harschmann/community-guardian/models"
+	_ "modernc.org/sqlite"
 )
 
 var DB *sql.DB
 
 func InitDB(filepath string) {
 	var err error
-	DB, err := sql.Open("sqlite", filepath)
+	DB, err = sql.Open("sqlite", filepath)
 	if err != nil {
 		log.Fatalf("Fatal: Failed to open SQLite database: %v", err)
 	}
@@ -30,7 +32,7 @@ func InitDB(filepath string) {
     	source TEXT,
     	category TEXT,
     	is_threat BOOLEAN,
-    	action_plan TEXT, -- we will store the json array as a string here 
+    	action_plan TEXT, -- we will store the JSON array as a string here 
     	processed_by TEXT
 	);
 	`
@@ -42,13 +44,16 @@ func InitDB(filepath string) {
 }
 
 func SaveProcessed(alert models.ProcessedAlert) error {
-	actionPlanJSON, _ := json.Marshal(alert.ActionPlan)
+	actionPlanJSON, err := json.Marshal(alert.ActionPlan)
+	if err != nil {
+		return fmt.Errorf("failed to marshal action plan: %v", err)
+	}
 	query := `
            INSERT INTO processed_threats (id, timestamp, source, category, is_threat, action_plan, processed_by)
            VALUES (?, ?, ?, ?, ?, ?, ?)
            ON CONFLICT(id) DO NOTHING;  -- prevent duplicate entries if we restart the app
     `
-	_, err := DB.Exec(query, alert.ID, alert.Timestamp, alert.Source, alert.Category, alert.IsThreat, string(actionPlanJSON), alert.ProcessedBy)
+	_, err = DB.Exec(query, alert.ID, alert.Timestamp, alert.Source, alert.Category, alert.IsThreat, string(actionPlanJSON), alert.ProcessedBy)
 	return err
 }
 
@@ -58,7 +63,12 @@ func GetThreats() ([]models.ProcessedAlert, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			log.Fatalf("Failed to close rows: %v", err)
+		}
+	}(rows)
 
 	var threats []models.ProcessedAlert
 	for rows.Next() {
@@ -71,8 +81,16 @@ func GetThreats() ([]models.ProcessedAlert, error) {
 			continue
 		}
 
-		json.Unmarshal([]byte(actionPlanStr), &t.ActionPlan)
+		err = json.Unmarshal([]byte(actionPlanStr), &t.ActionPlan)
+		if err != nil {
+			log.Printf("Warning: Error unmarshalling action plan json for alert %s: %v", t.ID, err)
+		}
 		threats = append(threats, t)
 	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating through database rows: %v", err)
+	}
+
 	return threats, nil
 }
