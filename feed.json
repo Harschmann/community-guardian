@@ -1,0 +1,20 @@
+[
+  {
+    "id": "1",
+    "timestamp": "2026-03-19T08:00:00Z",
+    "source": "Local Facebook Group",
+    "raw_text": "Did anyone else hear that loud noise near 5th street? Sounded like a transformer blew."
+  },
+  {
+    "id": "2",
+    "timestamp": "2026-03-19T08:15:00Z",
+    "source": "Community Forum",
+    "raw_text": "WARNING: I just got an email from 'Bank of America' saying my account is locked and I need to click a link to verify my SSN. The email address is totally fake. Don't fall for it!"
+  },
+  {
+    "id": "3",
+    "timestamp": "2026-03-19T09:30:00Z",
+    "source": "Nextdoor App",
+    "raw_text": "Alert: Excitel broadband just sent out a notice that their local database was breached. Change your WiFi router passwords if you use them!"
+  }
+]
