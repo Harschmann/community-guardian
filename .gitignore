@@ -4,6 +4,9 @@ community-guardian
 # Environment variables
 .env
 
+#Debug files
+debug.log
+
 # Database
 *.db
 *.sqlite
