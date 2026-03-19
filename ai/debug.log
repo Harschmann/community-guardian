@@ -1,5 +1,0 @@
-2026/03/19 19:55:47 ⚠️ AI unavailable for alert test-happy. Error: invalid or missing API key
-2026/03/19 19:55:47 ⚠️ AI unavailable for alert test-edge. Error: invalid or missing API key
-2026/03/19 19:55:47 ⚠️ AI unavailable for alert test-fallback. Error: invalid or missing API key
-2026/03/19 20:00:38 ⚠️ AI unavailable for alert test-fallback. Error: OpenRouter API returned status: 500
-2026/03/19 22:11:29 ⚠️ AI unavailable for alert test-fallback. Error: OpenRouter API returned status: 500
