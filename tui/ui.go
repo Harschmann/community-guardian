@@ -10,28 +10,35 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-// Styling definitions
 var (
-	titleStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#FAFAFA")).Background(lipgloss.Color("#7D56F4")).Padding(0, 1).MarginBottom(1)
-	paneStyle  = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).Padding(1, 2).Width(50).Height(15)
-	selected   = lipgloss.NewStyle().Foreground(lipgloss.Color("#00FF00")).Bold(true)
-	unselected = lipgloss.NewStyle().Foreground(lipgloss.Color("#FAFAFA"))
-	subtext    = lipgloss.NewStyle().Foreground(lipgloss.Color("#888888"))
-	alertBadge = lipgloss.NewStyle().Foreground(lipgloss.Color("#FF0000")).Bold(true)
+	titleStyle  = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#FAFAFA")).Background(lipgloss.Color("#7D56F4")).Padding(0, 1).MarginBottom(1)
+	paneStyle   = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).Padding(1, 2).Width(50).Height(15)
+	selected    = lipgloss.NewStyle().Foreground(lipgloss.Color("#00FF00")).Bold(true)
+	unselected  = lipgloss.NewStyle().Foreground(lipgloss.Color("#FAFAFA"))
+	subtext     = lipgloss.NewStyle().Foreground(lipgloss.Color("#888888"))
+	alertBadge  = lipgloss.NewStyle().Foreground(lipgloss.Color("#FF0000")).Bold(true)
+	filterBadge = lipgloss.NewStyle().Foreground(lipgloss.Color("#00FFFF")).Bold(true)
 )
 
 type model struct {
-	threats []models.ProcessedAlert
-	cursor  int
-	err     error
+	allThreats     []models.ProcessedAlert // The master list from the DB
+	visibleThreats []models.ProcessedAlert // The filtered list we display
+	cursor         int
+	err            error
+	filterIndex    int
+	filters        []string
 }
 
+type RefreshMsg struct{}
+
 func InitialModel() model {
-	// Fetch ONLY the verified threats from our SQLite database
 	threats, err := db.GetThreats()
 	return model{
-		threats: threats,
-		err:     err,
+		allThreats:     threats,
+		visibleThreats: threats, // Initially show all
+		err:            err,
+		filterIndex:    0,
+		filters:        []string{"All", "Physical Threat", "Phishing Scam", "Data Breach"},
 	}
 }
 
@@ -39,8 +46,34 @@ func (m model) Init() tea.Cmd {
 	return nil
 }
 
+// Helper to update the visible list based on the active filter
+func (m *model) applyFilter() {
+	m.cursor = 0
+	currentFilter := m.filters[m.filterIndex]
+
+	if currentFilter == "All" {
+		m.visibleThreats = m.allThreats
+		return
+	}
+
+	var filtered []models.ProcessedAlert
+	for _, t := range m.allThreats {
+		if t.Category == currentFilter {
+			filtered = append(filtered, t)
+		}
+	}
+	m.visibleThreats = filtered
+}
+
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case RefreshMsg:
+		threats, err := db.GetThreats()
+		if err == nil {
+			m.allThreats = threats
+			m.applyFilter()
+		}
+		return m, nil
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "q":
@@ -50,9 +83,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.cursor--
 			}
 		case "down", "j":
-			if m.cursor < len(m.threats)-1 {
+			if m.cursor < len(m.visibleThreats)-1 {
 				m.cursor++
 			}
+		case "f":
+			m.filterIndex = (m.filterIndex + 1) % len(m.filters)
+			m.applyFilter()
 		}
 	}
 	return m, nil
@@ -63,15 +99,18 @@ func (m model) View() string {
 		return fmt.Sprintf("Error loading data: %v\nPress 'q' to quit.", m.err)
 	}
 
-	if len(m.threats) == 0 {
-		return "No verified threats found in your area. Stay safe!\nPress 'q' to quit."
-	}
-
 	header := titleStyle.Render("🛡️  Community Guardian - Active Threats")
 
-	// Render the left pane (The List)
+	currentFilter := m.filters[m.filterIndex]
+	filterStatus := fmt.Sprintf(" Active Filter: %s", filterBadge.Render(currentFilter))
+
+	if len(m.visibleThreats) == 0 {
+		emptyMsg := fmt.Sprintf("\nNo threats found for category: %s\nPress 'f' to change filter or 'q' to quit.", currentFilter)
+		return fmt.Sprintf("%s\n%s\n%s", header, filterStatus, emptyMsg)
+	}
+
 	var listBuilder strings.Builder
-	for i, t := range m.threats {
+	for i, t := range m.visibleThreats {
 		cursorStr := "  "
 		itemStyle := unselected
 
@@ -86,9 +125,8 @@ func (m model) View() string {
 	}
 	leftPane := paneStyle.Render(listBuilder.String())
 
-	// Render the right pane (The Details)
 	var detailsBuilder strings.Builder
-	active := m.threats[m.cursor]
+	active := m.visibleThreats[m.cursor]
 
 	detailsBuilder.WriteString(alertBadge.Render("⚠️  "+active.Category) + "\n\n")
 	detailsBuilder.WriteString("Processed By: " + active.ProcessedBy + "\n\n")
@@ -100,9 +138,8 @@ func (m model) View() string {
 
 	rightPane := paneStyle.Render(detailsBuilder.String())
 
-	// Join them side-by-side
 	mainUI := lipgloss.JoinHorizontal(lipgloss.Top, leftPane, rightPane)
-	footer := subtext.Render("\n  (j/k or ↑/↓ to navigate • q to quit)")
+	footer := subtext.Render("\n  (j/k or ↑/↓ to navigate • f to filter • q to quit)")
 
-	return fmt.Sprintf("%s\n%s\n%s", header, mainUI, footer)
+	return fmt.Sprintf("%s\n%s\n\n%s\n%s", header, filterStatus, mainUI, footer)
 }

@@ -94,3 +94,13 @@ func GetThreats() ([]models.ProcessedAlert, error) {
 
 	return threats, nil
 }
+
+func AlertExists(id string) bool {
+	var exists bool
+	query := `SELECT EXISTS(SELECT 1 FROM processed_threats WHERE id = ?)`
+	err := DB.QueryRow(query, id).Scan(&exists)
+	if err != nil {
+		return false
+	}
+	return exists
+}
