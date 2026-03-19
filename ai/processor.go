@@ -76,7 +76,6 @@ func callOpenRouter(raw models.RawAlert) (models.ProcessedAlert, error) {
 	req.Header.Set("HTTP-Referer", "http://localhost:8080")
 	req.Header.Set("X-Title", "Community Guardian CLI")
 
-	// 5-second timeout ensures the terminal UI never freezes if the API lags
 	client := &http.Client{Timeout: 30 * time.Second}
 	resp, err := client.Do(req)
 	if err != nil {
