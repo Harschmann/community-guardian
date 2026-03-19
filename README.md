@@ -19,12 +19,14 @@
 * **Run Commands:**
   ```bash
   # 1. Clone the repository
-  git clone [https://github.com/Harschmann/community-guardian.git](https://github.com/Harschmann/community-guardian.git)
+  git clone https://github.com/Harschmann/community-guardian.git
   cd community-guardian
 
   # 2. Set up your environment variables
   cp .env.example .env
+  
   # Add your GROQ_API_KEY to the .env file
+  # GROQ_API_KEY=your_api_key_here
 
   # 3. Run the application
   go run .
