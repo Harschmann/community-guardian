@@ -1,6 +1,6 @@
 # 🛡️ Community Guardian CLI
 
-**Video Demo Link:** `[INSERT YOUR YOUTUBE/VIMEO LINK HERE]`
+**Video Demo Link:** https://youtu.be/eMPLE5cnO54
 
 ## Candidate Information
 * **Candidate Name:** Harsh Kumar
